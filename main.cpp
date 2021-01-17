@@ -1,3 +1,9 @@
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/core/utility.hpp>
+
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
@@ -6,6 +12,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace cv;
 
 string get_value(const vector<string> &value_list, unsigned int pos)
 {
@@ -54,7 +61,7 @@ void print_help()
 
 int main()
 {
-	unordered_map<string, string> name_map;
+	unordered_map<string, Mat> name_map;
 	vector<string> exit_command{"exit", "quit", "q"};
 
 	string line;
@@ -88,7 +95,7 @@ int main()
 			{
 				for(const auto &it: name_map)
 				{
-					cout << "name: " << it.first << " file name: " << it.second << endl;
+					cout << it.first << endl;
 				}
 			}
 			else
@@ -97,7 +104,7 @@ int main()
 				cout << "Load command" << endl;
 				auto name = get_value(word_list, 1);
 				auto filename = get_value(word_list, 2);
-				name_map[name] = filename;
+				name_map[name] = imread(filename, IMREAD_COLOR);
 			}
 			else
 			if(command == "s" || command == "store")
@@ -105,7 +112,14 @@ int main()
 				cout << "Store command" << endl;
 				auto name = get_value(word_list, 1);
 				auto filename = get_value(word_list, 2);
-				name_map[name] = filename;
+				if(name_map.find(name) != name_map.end())
+				{
+					imwrite(filename, name_map.at(name));
+				}
+				else
+				{
+					cout << "image doesn`t exist" << endl;
+				}
 			}
 			else
 			if(command == "blur")
@@ -114,6 +128,22 @@ int main()
 				auto from_name = get_value(word_list, 1);
 				auto to_name = get_value(word_list, 2);
 				auto size = stoi(get_value(word_list, 3));
+
+				if(name_map.find(from_name) == name_map.end())
+				{
+					cout << "image doesn`t exist" << endl;
+					continue;
+				}
+				if(size <= 0)
+				{
+					cout << "size must be greater than 0" << endl;
+					continue;
+				}
+
+				auto &src = name_map.at(from_name);
+				name_map[to_name].create(src.size(), src.type());
+
+				blur(src, name_map[to_name], Size(size, size));
 			}
 			else
 			if(command == "resize")
@@ -123,6 +153,18 @@ int main()
 				auto to_name = get_value(word_list, 2);
 				auto new_width = stoi(get_value(word_list, 3));
 				auto new_height = stoi(get_value(word_list, 4));
+				if(name_map.find(from_name) == name_map.end())
+				{
+					cout << "image doesn`t exist" << endl;
+					continue;
+				}
+				if(new_width <= 0 || new_height <= 0)
+				{
+					cout << "new_width or new_height must be greater than 0" << endl;
+					continue;
+				}
+
+				resize(name_map.at(from_name), name_map[to_name], Size(new_width, new_height));
 			}
 			else
 			if(command == "h" || command == "help")
@@ -137,7 +179,6 @@ int main()
 		catch(const exception & e)
 		{
 			cout << e.what() << endl;
-			print_help();
 		}
 	}
 
