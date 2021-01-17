@@ -55,7 +55,7 @@ void print_help()
 	cout << "            Stop commands interpretation and exit from program" << endl;
 	cout << endl;
 	cout << "ls" << endl;
-	cout << "            Show image name to file name mapping" << endl;
+	cout << "            Show existing images" << endl;
 	cout << endl;
 }
 
@@ -101,7 +101,6 @@ int main()
 			else
 			if(command == "ld" || command == "load")
 			{
-				cout << "Load command" << endl;
 				auto name = get_value(word_list, 1);
 				auto filename = get_value(word_list, 2);
 				name_map[name] = imread(filename, IMREAD_COLOR);
@@ -109,7 +108,6 @@ int main()
 			else
 			if(command == "s" || command == "store")
 			{
-				cout << "Store command" << endl;
 				auto name = get_value(word_list, 1);
 				auto filename = get_value(word_list, 2);
 				if(name_map.find(name) != name_map.end())
@@ -124,7 +122,6 @@ int main()
 			else
 			if(command == "blur")
 			{
-				cout << "Blur command" << endl;
 				auto from_name = get_value(word_list, 1);
 				auto to_name = get_value(word_list, 2);
 				auto size = stoi(get_value(word_list, 3));
@@ -148,7 +145,6 @@ int main()
 			else
 			if(command == "resize")
 			{
-				cout << "Resize command" << endl;
 				auto from_name = get_value(word_list, 1);
 				auto to_name = get_value(word_list, 2);
 				auto new_width = stoi(get_value(word_list, 3));
